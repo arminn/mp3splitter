@@ -1,6 +1,6 @@
 // TODO: For version 0.1 should be :
-//  -Add possibility to split in to several files
-//	-Create mechanism for at least hardcoded list of split's
+//  +Add possibility to split in to several files
+//	+Create mechanism for at least hardcoded list of split's
 //  -Create some simple input parser
 //  -Add normal naming and ID3 TAG copy in to out files
 //  -Add tunable input configuration
@@ -11,8 +11,23 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <string>
+
+using std::string;
+
 static const char* DEFAULT_OUT="./out_m.mp3";
 const double timeStart = 10*60+6, timeStop = 13*60+16;
+
+struct SplitNode {
+	double timeStart;
+	double timeStop;
+	std::string compName;
+};
+
+SplitNode gNodes[] = {
+		{3*60+48,6*60+32, "Philip George - Wish You Were Mine"},
+		{606,13*60+16, "Sigma ft Paloma Faith - Changing"}
+};
 
 double getEstimatedTotalTime(mpg123_handle *m)
 {
@@ -77,6 +92,7 @@ void doSplit(mpg123_handle *m, const char* outFile, const double timeStart, cons
 
 int main(int argc, char **argv)
 {
+
 	mpg123_handle *m;
 	int i;
 	if (argc < 3)
@@ -93,9 +109,12 @@ int main(int argc, char **argv)
 	mpg123_scan(m);
 	b = mpg123_length(m);
 
-	//for(i = 1; i < argc; ++i)
+	for (i = 0; i < sizeof(gNodes)/sizeof(SplitNode); ++i)
 	{
-		doSplit(m, argv[2], timeStart, timeStop);
+		char tmp[254];
+		snprintf(tmp, 254, "%d_%s.mp3", i, gNodes[i].compName.c_str());
+
+		doSplit(m, tmp, gNodes[i].timeStart, gNodes[i].timeStop);
 
 	}
 

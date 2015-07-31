@@ -16,6 +16,8 @@ endif
 SND_CFLAGS     := $(shell pkg-config --cflags sndfile)
 SND_LDFLAGS    := $(shell pkg-config --libs   sndfile)
 
+CC := g++
+
 # Oder of libs not that important here...
 compile = $(CC) $(CPPFLAGS) $(CFLAGS) $(MPG123_CFLAGS)
 linkflags = $(MPG123_LDFLAGS) $(LDFLAGS)
