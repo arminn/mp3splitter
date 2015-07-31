@@ -1,3 +1,11 @@
+// TODO: For version 0.1 should be :
+//  -Add possibility to split in to several files
+//	-Create mechanism for at least hardcoded list of split's
+//  -Create some simple input parser
+//  -Add normal naming and ID3 TAG copy in to out files
+//  -Add tunable input configuration
+//
+
 #include <fcntl.h>
 #include <mpg123.h>
 #include <stdio.h>
@@ -36,7 +44,7 @@ void doSplit(mpg123_handle *m, const char* outFile, const double timeStart, cons
 	if (mpg123_seek(m, startOff, SEEK_SET) < 0) {
 		fprintf(stderr,"Failed to sek onto %ld", startOff);
 	}
-	while( (ret = mpg123_framebyframe_next(m)) == MPG123_OK || ret == MPG123_NEW_FORMAT )
+	while ( (ret = mpg123_framebyframe_next(m)) == MPG123_OK || ret == MPG123_NEW_FORMAT )
 	{
 		unsigned long header;
 		unsigned char *bodydata;
@@ -50,12 +58,12 @@ void doSplit(mpg123_handle *m, const char* outFile, const double timeStart, cons
 		if (currentOff > stopOff)
 			break;
 
-		if(mpg123_framedata(m, &header, &bodydata, &bodybytes) == MPG123_OK)
+		if (mpg123_framedata(m, &header, &bodydata, &bodybytes) == MPG123_OK)
 		{
 			/* Need to extract the 4 header bytes from the native storage in the correct order. */
 			unsigned char hbuf[4];
 			int i;
-			for(i=0; i<4; ++i) hbuf[i] = (unsigned char) ((header >> ((3-i)*8)) & 0xff);
+			for (i=0; i<4; ++i) hbuf[i] = (unsigned char) ((header >> ((3-i)*8)) & 0xff);
 
 			/* Now write out both header and data, fire and forget. */
 			write(outFd, hbuf, 4);
@@ -71,7 +79,7 @@ int main(int argc, char **argv)
 {
 	mpg123_handle *m;
 	int i;
-	if(argc < 3)
+	if (argc < 3)
 	{
 		fprintf(stderr, "\nUsage: %s <mpeg audio IN.mp3 OUT-MASK-NAME>\n\n", argv[0]);
 		return -1;
