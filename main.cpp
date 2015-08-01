@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include "ALog.h"
+
 using std::string;
 
 struct SplitNode {
@@ -46,14 +48,14 @@ void doSplit(mpg123_handle *m, const char* outFile, const double timeStart, cons
 
 	int outFd = open(outFile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 	if (outFd < 0) {
-		fprintf(stderr, "Unable to open file[%s][%s]\n", outFile, strerror(errno));
+		LOGE("Unable to open file[%s][%s]", outFile, strerror(errno));
 		return;
 	}
 
-	printf("Start=%ld stop=%ld\n", startOff, stopOff);
+	LOGV("Start=%ld stop=%ld", startOff, stopOff);
 
 	if (mpg123_seek(m, startOff, SEEK_SET) < 0) {
-		fprintf(stderr,"Failed to sek onto %ld", startOff);
+		LOGE("Failed to sek onto %ld", startOff);
 	}
 	while ( (ret = mpg123_framebyframe_next(m)) == MPG123_OK || ret == MPG123_NEW_FORMAT )
 	{
@@ -93,7 +95,7 @@ int main(int argc, char **argv)
 	int i;
 	if (argc < 3)
 	{
-		fprintf(stderr, "\nUsage: %s <mpeg audio IN.mp3 OUT-MASK-NAME>\n\n", argv[0]);
+		LOGI("Usage: %s <mpeg audio IN.mp3 OUT-MASK-NAME>\n", argv[0]);
 		return -1;
 	}
 	mpg123_init();
@@ -114,8 +116,8 @@ int main(int argc, char **argv)
 
 	}
 
-	printf("File %i: estimated %li vs. scanned %li\n", i, (long)a, (long)b);
-	printf("Estimated time=%f\n", getEstimatedTotalTime(m));
+	LOGD("File %i: estimated %li vs. scanned %li", i, (long)a, (long)b);
+	LOGD("Estimated time=%f\n", getEstimatedTotalTime(m));
 	mpg123_close(m);
 EXIT:
 	mpg123_delete(m);

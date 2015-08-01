@@ -23,4 +23,7 @@ compile = $(CC) $(CPPFLAGS) $(CFLAGS) $(MPG123_CFLAGS)
 linkflags = $(MPG123_LDFLAGS) $(LDFLAGS)
 
 split: main.cpp
-	$(compile) -o split main.cpp $(linkflags)
+	$(compile) -o split main.cpp ALog.cpp $(linkflags)
+	
+clean:
+	rm -vf $(targets)
