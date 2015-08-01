@@ -9,14 +9,13 @@
 #include <fcntl.h>
 #include <mpg123.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <string>
 
 using std::string;
-
-static const char* DEFAULT_OUT="./out_m.mp3";
-const double timeStart = 10*60+6, timeStop = 13*60+16;
 
 struct SplitNode {
 	double timeStart;
@@ -25,8 +24,8 @@ struct SplitNode {
 };
 
 SplitNode gNodes[] = {
-		{3*60+48,6*60+32, "Philip George - Wish You Were Mine"},
-		{606,13*60+16, "Sigma ft Paloma Faith - Changing"}
+		{3*60+48, 6*60+32, "Philip_George_Woodhead-Wish_You_Were_Mine"},
+		{606, 13*60+16, "Sigma_ft_Paloma_Faith-Changing"}
 };
 
 double getEstimatedTotalTime(mpg123_handle *m)
@@ -42,17 +41,14 @@ void doSplit(mpg123_handle *m, const char* outFile, const double timeStart, cons
 {
 	int ret = 0;
 	size_t count = 0;
-
-
-	int outFd = open(outFile, O_WRONLY | O_CREAT);
-	if (outFd < 0) {
-		fprintf(stderr, "Unable to open file[%s]\n", outFile);
-		return;
-	}
-
-
 	off_t startOff = mpg123_timeframe(m, timeStart);
 	off_t stopOff = mpg123_timeframe(m, timeStop);
+
+	int outFd = open(outFile, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+	if (outFd < 0) {
+		fprintf(stderr, "Unable to open file[%s][%s]\n", outFile, strerror(errno));
+		return;
+	}
 
 	printf("Start=%ld stop=%ld\n", startOff, stopOff);
 
@@ -112,7 +108,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < sizeof(gNodes)/sizeof(SplitNode); ++i)
 	{
 		char tmp[254];
-		snprintf(tmp, 254, "%d_%s.mp3", i, gNodes[i].compName.c_str());
+		snprintf(tmp, 254, "%s%d_%s.mp3", argv[2], i, gNodes[i].compName.c_str());
 
 		doSplit(m, tmp, gNodes[i].timeStart, gNodes[i].timeStop);
 
